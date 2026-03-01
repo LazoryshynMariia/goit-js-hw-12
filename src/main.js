@@ -20,20 +20,22 @@ async function handleSubmit(event) {
     const query = input.value.trim();
     currentQuery = query;
     page = 1;
+
     if (query === "") {
         iziToast.error({
             message: "Please enter a search term",
             backgroundColor: '#ef4040',
             position: 'topRight'
-        })
+        });
         return;
     }
 
     clearGallery();
+    hideLoadMoreButton();
     showLoader();
    
     try {
-    const res = await getImagesByQuery(query, page)
+        const res = await getImagesByQuery(query, page);
     
         if (res.hits.length === 0) {
                 iziToast.error({
@@ -41,20 +43,24 @@ async function handleSubmit(event) {
                     backgroundColor: '#ef4040',
                     position: 'topRight'
                 })
+            return;
         }
+
         totalPages = Math.ceil(res.totalHits / per_page);
+
         createGallery(res.hits);
+
         if (page < totalPages) {
             showLoadMoreButton();
         }
         
     } catch (error) {
         iziToast.error({
-                message: "Something went wrong. Please try again!",
-                backgroundColor: '#ef4040',
-                position: 'topRight',
-                icon: null
-            })
+            message: "Something went wrong. Please try again!",
+            backgroundColor: '#ef4040',
+            position: 'topRight',
+            icon: null
+        });
     } finally {
         hideLoader();
         input.value = "";
@@ -66,11 +72,16 @@ async function onLoadMore() {
     page++;
     showLoader();
     hideLoadMoreButton();
+
     try {
         const data = await getImagesByQuery(currentQuery, page);
+
         createGallery(data.hits);
+
         totalPages = Math.ceil(data.totalHits / per_page);
+
         if (page >= totalPages) {
+            hideLoadMoreButton();
                iziToast.info({
                    message: "We're sorry, but you've reached the end of search results!",
                    backgroundColor: "rgba(4, 158, 255, 0.5)",
@@ -81,12 +92,13 @@ async function onLoadMore() {
         }
 
         const card = document.querySelector(".gallery-item");
+
          const cardHeight = card.getBoundingClientRect().height;
-            window.scrollBy({
+          if (cardHeight) { window.scrollBy({
                 left: 0,
-                top: cardHeight * 3,
+                top: cardHeight * 2,
                 behavior: "smooth"
-            })
+            })}
     } catch (error) {
         iziToast.error({
                 message: "Something went wrong. Please try again!",
