@@ -52,6 +52,13 @@ async function handleSubmit(event) {
 
         if (page < totalPages) {
             showLoadMoreButton();
+        } else {
+            hideLoadMoreButton();
+               iziToast.info({
+                   message: "We're sorry, but you've reached the end of search results!",
+                   backgroundColor: "rgba(4, 158, 255, 0.5)",
+                   position: 'topRight',
+                });
         }
         
     } catch (error) {
